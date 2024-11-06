@@ -209,8 +209,8 @@ class Config:
 
 class Default(Config):
 
-    OrganizationDomain = "biolab.si"
-    ApplicationName = "Orange Canvas Core"
+    OrganizationDomain = "radyalabs.com"
+    ApplicationName = "RadyaAI"
     ApplicationVersion = __version__
 
     @staticmethod
