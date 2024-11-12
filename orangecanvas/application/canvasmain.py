@@ -471,7 +471,7 @@ class CanvasMainWindow(QMainWindow):
             self.tr("Get Started"), self,
             objectName="get-started-action",
             toolTip=self.tr("View a 'Get Started' introduction."),
-            icon=load_styled_svg_icon("Documentation.svg")
+            # icon=load_styled_svg_icon("Documentation.svg")
         )
         config_url_action(self.get_started_action, "Quick Start")
 
@@ -479,7 +479,7 @@ class CanvasMainWindow(QMainWindow):
             self.tr("Video Tutorials"), self,
             objectName="screencasts-action",
             toolTip=self.tr("View video tutorials"),
-            icon=load_styled_svg_icon("YouTube.svg"),
+            # icon=load_styled_svg_icon("YouTube.svg"),
         )
         config_url_action(self.get_started_screencasts_action, "Screencasts")
 
@@ -487,7 +487,7 @@ class CanvasMainWindow(QMainWindow):
             self.tr("Documentation"), self,
             objectName="documentation-action",
             toolTip=self.tr("View reference documentation."),
-            icon=load_styled_svg_icon("Documentation.svg"),
+            # icon=load_styled_svg_icon("Documentation.svg"),
         )
         config_url_action(self.documentation_action, "Documentation")
 
@@ -1999,11 +1999,11 @@ class CanvasMainWindow(QMainWindow):
             if self.examples_dialog() == QDialog.Accepted:
                 dialog.accept()
         new_action = QAction(
-            self.tr("New"), dialog,
+            self.tr("New Project"), dialog,
             toolTip=self.tr("Open a new workflow."),
             triggered=new_scheme,
             shortcut=QKeySequence.New,
-            icon=load_styled_svg_icon("New.svg")
+            # icon=load_styled_svg_icon("New.svg")
         )
 
         open_action = QAction(
@@ -2012,7 +2012,7 @@ class CanvasMainWindow(QMainWindow):
             toolTip=self.tr("Open a workflow."),
             triggered=open_scheme,
             shortcut=QKeySequence.Open,
-            icon=load_styled_svg_icon("Open.svg")
+            # icon=load_styled_svg_icon("Open.svg")
         )
 
         recent_action = QAction(
@@ -2021,7 +2021,7 @@ class CanvasMainWindow(QMainWindow):
             toolTip=self.tr("Browse and open a recent workflow."),
             triggered=open_recent,
             shortcut=QKeySequence("Ctrl+Shift+R"),
-            icon=load_styled_svg_icon("Recent.svg")
+            # icon=load_styled_svg_icon("Recent.svg")
         )
 
         examples_action = QAction(
@@ -2029,9 +2029,10 @@ class CanvasMainWindow(QMainWindow):
             objectName="welcome-examples-action",
             toolTip=self.tr("Browse example workflows."),
             triggered=browse_examples,
-            icon=load_styled_svg_icon("Examples.svg")
+            # icon=load_styled_svg_icon("Examples.svg")
         )
 
+        example_ = [new_action, open_action]
         bottom_row = [self.get_started_action, examples_action,
                       self.documentation_action]
         if self.get_started_screencasts_action.isEnabled():
@@ -2040,8 +2041,8 @@ class CanvasMainWindow(QMainWindow):
         self.new_action.triggered.connect(dialog.accept)
         top_row = [new_action, open_action, recent_action]
 
-        dialog.addRow(top_row, background="light-grass")
-        dialog.addRow(bottom_row, background="light-orange")
+        dialog.addRow(top_row + bottom_row, background="light-grass")
+        # dialog.addTopbar(example_, background="light-grass")
 
         settings = QSettings()
 
@@ -2051,8 +2052,7 @@ class CanvasMainWindow(QMainWindow):
 
         status = dialog.exec()
 
-        settings.setValue("startup/show-welcome-screen",
-                          dialog.showAtStartup())
+        settings.setValue("startup/show-welcome-screen", dialog.showAtStartup())
 
         dialog.deleteLater()
 

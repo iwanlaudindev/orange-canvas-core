@@ -326,6 +326,7 @@ class Main:
     def show_welcome_screen(self, parent: CanvasMainWindow):
         """Show the initial welcome screen."""
         settings = QSettings()
+        settings.setValue("startup/show-welcome-screen", True)
         options = self.options
         want_welcome = settings.value(
             "startup/show-welcome-screen", True, type=bool

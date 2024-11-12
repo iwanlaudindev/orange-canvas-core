@@ -6,7 +6,7 @@ from typing import Optional, Union, Iterable
 from xml.sax.saxutils import escape
 
 from AnyQt.QtWidgets import (
-    QDialog, QWidget, QToolButton, QCheckBox, QAction,
+    QDialog, QWidget, QToolButton, QCheckBox, QAction, QLineEdit, QFrame,
     QHBoxLayout, QVBoxLayout, QSizePolicy, QLabel, QApplication
 )
 from AnyQt.QtGui import (
@@ -78,26 +78,27 @@ def decorate_welcome_icon(icon, background_color):
 
 
 WELCOME_WIDGET_BUTTON_STYLE = """
-WelcomeActionButton {
-    border: 1px solid transparent;
-    border-radius: 10px;
-    font-size: 13px;
-    icon-size: 75px;
-}
-WelcomeActionButton:pressed {
-    background-color: palette(highlight);
-    color: palette(highlighted-text);
-}
-WelcomeActionButton:focus {
-    border: 1px solid palette(highlight);
-}
+    QToolButton {
+        padding: 10px 15px;
+        border-radius: 5px;
+        background: transparent;
+        font-size: 13px;
+        color: black;
+        font-weight: 200;
+    }
+    QToolButton:hover {
+        background-color: #E9ECEF;
+    }
+    QToolButton[selected=true] {
+        background-color: #4CC9FE;
+    }
 """
-
 
 class WelcomeActionButton(QToolButton):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.setFont(QApplication.font("QAbstractButton"))
+        self.setToolButtonStyle(Qt.ToolButtonTextOnly)
 
     def actionEvent(self, event):
         # type: (QActionEvent) -> None
@@ -121,91 +122,171 @@ class WelcomeDialog(QDialog):
         super().__init__(*args, **kwargs)
 
         self.__triggeredAction = None  # type: Optional[QAction]
+        self.__sidebarLayout = None
+        self.__contectLayout = None
         self.__showAtStartupCheck = None
-        self.__mainLayout = None
         self.__feedbackUrl = None
         self.__feedbackLabel = None
 
         self.setupUi()
 
-        self.setFeedbackUrl(feedbackUrl)
+        # self.setFeedbackUrl(feedbackUrl)
         self.setShowAtStartup(showAtStartup)
 
     def setupUi(self):
-        self.setLayout(QVBoxLayout())
-        self.layout().setContentsMargins(0, 0, 0, 0)
-        self.layout().setSpacing(0)
+        # Main layout
+        main_layout = QHBoxLayout()
+        main_layout.setContentsMargins(0, 0, 0, 0)
+        main_layout.setSpacing(0)
+        self.setLayout(main_layout)
 
-        self.__mainLayout = QVBoxLayout()
-        self.__mainLayout.setContentsMargins(0, 40, 0, 40)
-        self.__mainLayout.setSpacing(65)
+        # Sidebar
+        sidebar = QFrame()
+        sidebar.setStyleSheet("""
+            QFrame {
+                background-color: #F5F5F5;
+            }
+        """)
 
-        self.layout().addLayout(self.__mainLayout)
+        self.__sidebarLayout = QVBoxLayout()
+        self.__sidebarLayout.setContentsMargins(20, 20, 20, 20)
+        self.__sidebarLayout.setSpacing(0)
+        sidebar.setLayout(self.__sidebarLayout)
 
-        self.setStyleSheet(WELCOME_WIDGET_BUTTON_STYLE)
+        # Logo and subtitle
+        logo = QLabel("RadyaAI")
+        logo.setFont(QFont("Arial", 24, QFont.Bold))
+        logo.setStyleSheet("color: #4B0082;")
 
-        bottom_bar = QWidget(objectName="bottom-bar")
-        bottom_bar_layout = QHBoxLayout()
-        bottom_bar_layout.setContentsMargins(20, 10, 20, 10)
-        bottom_bar.setLayout(bottom_bar_layout)
-        bottom_bar.setSizePolicy(QSizePolicy.MinimumExpanding,
-                                 QSizePolicy.Maximum)
+        subtitle = QLabel("Powered by Orange Data Mining")
+        subtitle.setStyleSheet("color: #6C757D; font-size: 12px; font-weight: 200;")
 
-        self.__showAtStartupCheck = QCheckBox(
-            self.tr("Show at startup"), bottom_bar, checked=False
-        )
-        self.__feedbackLabel = QLabel(
-            textInteractionFlags=Qt.TextBrowserInteraction,
-            openExternalLinks=True,
-            visible=False,
-        )
+        # Add widgets to sidebar
+        self.__sidebarLayout.addWidget(logo)
+        self.__sidebarLayout.addWidget(subtitle)
+        self.__sidebarLayout.addSpacing(30)
 
-        bottom_bar_layout.addWidget(
-            self.__showAtStartupCheck, alignment=Qt.AlignVCenter | Qt.AlignLeft
-        )
-        bottom_bar_layout.addWidget(
-            self.__feedbackLabel, alignment=Qt.AlignVCenter | Qt.AlignRight
-        )
-        self.layout().addWidget(bottom_bar, alignment=Qt.AlignBottom,
-                                stretch=1)
+        # Main content area
+        self.__contectLayout = QVBoxLayout()
+        self.__contectLayout.setContentsMargins(20, 20, 20, 20)
+        self.__contectLayout.setSpacing(20)
+        
+        content = QWidget()
+        content.setLayout(self.__contectLayout)
+
+        # Top bar with search and buttons
+        top_bar_layout = QHBoxLayout()
+        top_bar_layout.setContentsMargins(0, 0, 0, 0)
+        # Action buttons
+        new_project_btn = QToolButton()
+        new_project_btn.setText("New Project")
+        new_project_btn.setStyleSheet("""
+            QToolButton {
+                background-color: #4B9BFF;
+                color: white;
+                padding: 8px 16px;
+                border-radius: 4px;
+                font-size: 13px;
+                font-weight: 200;
+            }
+            QToolButton:hover {
+                background-color: #3D8BFF;
+            }
+        """)
+        new_project_btn.setMinimumWidth(100)
+
+        open_btn = QToolButton()
+        open_btn.setText("Open")
+        open_btn.setStyleSheet("""
+            QToolButton {
+                background-color: #6C757D;
+                color: white;
+                padding: 8px 16px;
+                border-radius: 4px;
+                font-size: 13px;
+                font-weight: 200;
+            }
+            QToolButton:hover {
+                background-color: #5A6268;
+            }
+        """)
+        open_btn.setMinimumWidth(80)
+
+        # Search box
+        search_box = QLineEdit()
+        search_box.setPlaceholderText("Search Projects")
+        search_box.setStyleSheet("""
+            QLineEdit {
+                padding: 8px;
+                border: 1px solid #DDE1E6;
+                border-radius: 4px;
+                background-color: white;
+                font-size: 13px;
+                color: black;
+                font-weight: 200;
+            }
+        """)
+
+        # Add widgets to top bar
+        top_bar_layout.addWidget(search_box, stretch=1)
+        top_bar_layout.addWidget(new_project_btn)
+        top_bar_layout.addWidget(open_btn)
+
+        top_bar = QWidget()
+        top_bar.setLayout(top_bar_layout)
+
+        # Add top bar to content layout        
+        self.__contectLayout.addWidget(top_bar)
+        self.__contectLayout.addStretch()
+
+        # # Add sidebar and content to main layout
+        main_layout.addWidget(sidebar)
+        main_layout.addWidget(content, stretch=1)
 
         self.setSizeGripEnabled(False)
-        self.setFixedSize(620, 390)
+        self.setMinimumSize(1000, 600)
+        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        # Set window background to white
+        self.setStyleSheet("""
+            QDialog {
+                background-color: white;
+            }
+        """)
 
     def setShowAtStartup(self, show):
         # type: (bool) -> None
         """
         Set the 'Show at startup' check box state.
         """
-        if self.__showAtStartupCheck.isChecked() != show:
-            self.__showAtStartupCheck.setChecked(show)
+        # if self.__showAtStartupCheck.isChecked() != show:
+        #     self.__showAtStartupCheck.setChecked(show)
 
     def showAtStartup(self):
         # type: () -> bool
         """
         Return the 'Show at startup' check box state.
         """
-        return self.__showAtStartupCheck.isChecked()
+        # return self.__showAtStartupCheck.isChecked()
 
     def setFeedbackUrl(self, url):
         # type: (str) -> None
         """
         Set an 'feedback' url. When set a link is displayed in the bottom row.
         """
-        self.__feedbackUrl = url
-        if url:
-            text = self.tr("Help us improve!")
-            self.__feedbackLabel.setText(
-                '<a href="{url}">{text}</a>'.format(url=url, text=escape(text))
-            )
-        else:
-            self.__feedbackLabel.setText("")
-        self.__feedbackLabel.setVisible(bool(url))
+        # self.__feedbackUrl = url
+        # if url:
+        #     text = self.tr("Help us improve!")
+        #     self.__feedbackLabel.setText(
+        #         '<a href="{url}">{text}</a>'.format(url=url, text=escape(text))
+        #     )
+        # else:
+        #     self.__feedbackLabel.setText("")
+        # self.__feedbackLabel.setVisible(bool(url))
 
     def addRow(self, actions, background="light-orange"):
         """Add a row with `actions`.
         """
-        count = self.__mainLayout.count()
+        count = self.__sidebarLayout.count()
         self.insertRow(count, actions, background)
 
     def insertRow(self, index, actions, background="light-orange"):
@@ -213,16 +294,27 @@ class WelcomeDialog(QDialog):
         """Insert a row with `actions` at `index`.
         """
         widget = QWidget(objectName="icon-row")
-        layout = QHBoxLayout()
-        layout.setContentsMargins(40, 0, 40, 0)
-        layout.setSpacing(65)
+        layout = QVBoxLayout()
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(0)
         widget.setLayout(layout)
 
-        self.__mainLayout.insertWidget(index, widget, stretch=10,
-                                       alignment=Qt.AlignCenter)
+        self.__sidebarLayout.insertWidget(index, widget, stretch=10, alignment=Qt.AlignTop)
 
         for i, action in enumerate(actions):
             self.insertAction(index, i, action, background)
+
+    # custome
+    def addNewProject(self, action, background="light-orange"):
+        """Add a row with `actions` in topbar.
+        """
+        widget = QWidget()
+        layout = QHBoxLayout()
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(0)
+        widget.setLayout(layout)
+
+        self.__contectLayout.insertWidget(0, widget, stretch=10, alignment=Qt.AlignTop)
 
     def insertAction(self, row, index, action, background="light-orange"):
         """Insert `action` in `row` in position `index`.
@@ -234,26 +326,35 @@ class WelcomeDialog(QDialog):
         # type: (int, int, QToolButton) -> None
         """Insert `button` in `row` in position `index`.
         """
-        item = self.__mainLayout.itemAt(row)
+        item = self.__sidebarLayout.itemAt(row)
         layout = item.widget().layout()
         layout.insertWidget(index, button)
         button.triggered.connect(self.__on_actionTriggered)
 
-    def createButton(self, action, background="light-orange"):
-        # type: (QAction, Union[QColor, str]) -> QToolButton
+    def createButton(self, action, is_sidebar=True, background="light-orange"):
+        # type: (QAction, bool, Union[QColor, str]) -> QToolButton
         """Create a tool button for action.
         """
         button = WelcomeActionButton(self)
         button.setDefaultAction(action)
-        button.setText(action.iconText())
-        button.setIcon(decorate_welcome_icon(action.icon(), background))
-        button.setToolTip(action.toolTip())
-        button.setFixedSize(100, 100)
-        button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
-        button.setVisible(action.isVisible())
-        font = QFont(button.font())
-        font.setPointSize(13)
-        button.setFont(font)
+        if is_sidebar:
+            button.setStyleSheet(WELCOME_WIDGET_BUTTON_STYLE)
+            button.setMinimumWidth(200)
+        else:
+            button.setStyleSheet("""
+                QToolButton {
+                    background-color: #4B9BFF;
+                    color: white;
+                    padding: 8px 16px;
+                    border-radius: 4px;
+                    font-size: 13px;
+                    font-weight: 200;
+                }
+                QToolButton:hover {
+                    background-color: #3D8BFF;
+                }
+            """)
+            button.setMinimumWidth(100)
 
         return button
 
@@ -261,7 +362,7 @@ class WelcomeDialog(QDialog):
         # type: (int, int) -> QToolButton
         """Return the button at i-t row and j-th column.
         """
-        item = self.__mainLayout.itemAt(i)
+        item = self.__sidebarLayout.itemAt(i)
         row = item.widget()
         item = row.layout().itemAt(j)
         return item.widget()
