@@ -596,6 +596,15 @@ class CanvasMainWindow(QMainWindow):
         )
         self.toggle_tool_dock_expand.setChecked(True)
 
+        self.generate_python_notebook_code = QAction(
+            self.tr("Generate Python Notebook (Python Code)"), self,
+            objectName="generate-python-notebook-code"
+        )
+        self.deploy_mlops = QAction(
+            self.tr("Deploy to MLOps (Metaflow)"), self,
+            objectName="deploy-mlops",
+        )
+
         # Gets assigned in setup_ui (the action is defined in CanvasToolDock)
         # TODO: This is bad (should be moved here).
         self.dock_help_action = None
@@ -750,6 +759,15 @@ class CanvasMainWindow(QMainWindow):
         self.window_menu.addAction(self.float_widgets_on_top_action)
         menu_bar.addMenu(self.window_menu)
         menu_bar.addMenu(self.options_menu)
+
+         # Build menu.
+        self.build_menu = QMenu(
+            self.tr("&Build"), menu_bar, objectName="build-menu",
+        )
+        self.build_menu.addAction(self.generate_python_notebook_code)
+        self.build_menu.addAction(self.deploy_mlops)
+
+        menu_bar.addMenu(self.build_menu)
 
         # Help menu.
         self.help_menu = QMenu(
@@ -2016,9 +2034,9 @@ class CanvasMainWindow(QMainWindow):
         )
 
         recent_action = QAction(
-            self.tr("Recent"), dialog,
-            objectName="welcome-recent-action",
-            toolTip=self.tr("Browse and open a recent workflow."),
+            self.tr("Projects"), dialog,
+            objectName="welcome-project-action",
+            toolTip=self.tr("Browse and open a project workflow."),
             triggered=open_recent,
             shortcut=QKeySequence("Ctrl+Shift+R"),
             # icon=load_styled_svg_icon("Recent.svg")
@@ -2032,17 +2050,15 @@ class CanvasMainWindow(QMainWindow):
             # icon=load_styled_svg_icon("Examples.svg")
         )
 
-        example_ = [new_action, open_action]
-        bottom_row = [self.get_started_action, examples_action,
-                      self.documentation_action]
-        if self.get_started_screencasts_action.isEnabled():
-            bottom_row.insert(0, self.get_started_screencasts_action)
+        topbar_row = [new_action, open_action]
 
         self.new_action.triggered.connect(dialog.accept)
-        top_row = [new_action, open_action, recent_action]
+        sidebar_row = [self.get_started_action, recent_action, self.documentation_action, examples_action]
+        if self.get_started_screencasts_action.isEnabled():
+            sidebar_row.append(self.get_started_screencasts_action)
 
-        dialog.addRow(top_row + bottom_row, background="light-grass")
-        # dialog.addTopbar(example_, background="light-grass")
+        dialog.addRow(sidebar_row, background="light-grass")
+        # dialog.addColumn(topbar_row, background="light-grass")
 
         settings = QSettings()
 

@@ -94,6 +94,56 @@ WELCOME_WIDGET_BUTTON_STYLE = """
     }
 """
 
+SIDEBAR_STYLE = """
+    QFrame {
+        background-color: #F5F5F5;
+    }
+"""
+
+BUTTON_BASE = """
+    QToolButton {{
+        color: white;
+        padding: 8px 16px;
+        border-radius: 4px;
+        font-size: 13px;
+        font-weight: 200;
+        background-color: {bg_color};
+    }}
+    QToolButton:hover {{
+        background-color: {hover_color};
+    }}
+"""
+    
+NEW_PROJECT_BUTTON = BUTTON_BASE.format(
+    bg_color="#4B9BFF",
+    hover_color="#3D8BFF"
+)
+    
+OPEN_BUTTON = BUTTON_BASE.format(
+    bg_color="#6C757D",
+    hover_color="#5A6268"
+)
+    
+SEARCH_BOX = """
+    QLineEdit {
+        padding: 8px;
+        border: 1px solid #DDE1E6;
+        border-radius: 4px;
+        background-color: white;
+        font-size: 13px;
+        color: black;
+        font-weight: 200;
+    }
+"""
+
+SUB_TITLE_STYLE = """
+    QLabel {
+        color: #6C757D; 
+        font-size: 10px; 
+        font-weight: 200;
+    }
+"""
+
 class WelcomeActionButton(QToolButton):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -135,18 +185,13 @@ class WelcomeDialog(QDialog):
 
     def setupUi(self):
         # Main layout
-        main_layout = QHBoxLayout()
-        main_layout.setContentsMargins(0, 0, 0, 0)
-        main_layout.setSpacing(0)
-        self.setLayout(main_layout)
+        self.setLayout(QHBoxLayout())
+        self.layout().setContentsMargins(0, 0, 0, 0)
+        self.layout().setSpacing(0)
 
         # Sidebar
         sidebar = QFrame()
-        sidebar.setStyleSheet("""
-            QFrame {
-                background-color: #F5F5F5;
-            }
-        """)
+        sidebar.setStyleSheet(SIDEBAR_STYLE)
 
         self.__sidebarLayout = QVBoxLayout()
         self.__sidebarLayout.setContentsMargins(20, 20, 20, 20)
@@ -155,11 +200,11 @@ class WelcomeDialog(QDialog):
 
         # Logo and subtitle
         logo = QLabel("RadyaAI")
-        logo.setFont(QFont("Arial", 24, QFont.Bold))
+        logo.setFont(QFont("Arial", 25, QFont.Bold))
         logo.setStyleSheet("color: #4B0082;")
 
         subtitle = QLabel("Powered by Orange Data Mining")
-        subtitle.setStyleSheet("color: #6C757D; font-size: 12px; font-weight: 200;")
+        subtitle.setStyleSheet(SUB_TITLE_STYLE)
 
         # Add widgets to sidebar
         self.__sidebarLayout.addWidget(logo)
@@ -169,7 +214,7 @@ class WelcomeDialog(QDialog):
         # Main content area
         self.__contectLayout = QVBoxLayout()
         self.__contectLayout.setContentsMargins(20, 20, 20, 20)
-        self.__contectLayout.setSpacing(20)
+        self.__contectLayout.setSpacing(0)
         
         content = QWidget()
         content.setLayout(self.__contectLayout)
@@ -180,52 +225,18 @@ class WelcomeDialog(QDialog):
         # Action buttons
         new_project_btn = QToolButton()
         new_project_btn.setText("New Project")
-        new_project_btn.setStyleSheet("""
-            QToolButton {
-                background-color: #4B9BFF;
-                color: white;
-                padding: 8px 16px;
-                border-radius: 4px;
-                font-size: 13px;
-                font-weight: 200;
-            }
-            QToolButton:hover {
-                background-color: #3D8BFF;
-            }
-        """)
+        new_project_btn.setStyleSheet(NEW_PROJECT_BUTTON)
         new_project_btn.setMinimumWidth(100)
 
         open_btn = QToolButton()
         open_btn.setText("Open")
-        open_btn.setStyleSheet("""
-            QToolButton {
-                background-color: #6C757D;
-                color: white;
-                padding: 8px 16px;
-                border-radius: 4px;
-                font-size: 13px;
-                font-weight: 200;
-            }
-            QToolButton:hover {
-                background-color: #5A6268;
-            }
-        """)
+        open_btn.setStyleSheet(OPEN_BUTTON)
         open_btn.setMinimumWidth(80)
 
         # Search box
         search_box = QLineEdit()
         search_box.setPlaceholderText("Search Projects")
-        search_box.setStyleSheet("""
-            QLineEdit {
-                padding: 8px;
-                border: 1px solid #DDE1E6;
-                border-radius: 4px;
-                background-color: white;
-                font-size: 13px;
-                color: black;
-                font-weight: 200;
-            }
-        """)
+        search_box.setStyleSheet(SEARCH_BOX)
 
         # Add widgets to top bar
         top_bar_layout.addWidget(search_box, stretch=1)
@@ -240,8 +251,8 @@ class WelcomeDialog(QDialog):
         self.__contectLayout.addStretch()
 
         # # Add sidebar and content to main layout
-        main_layout.addWidget(sidebar)
-        main_layout.addWidget(content, stretch=1)
+        self.layout().addWidget(sidebar)
+        self.layout().addWidget(content)
 
         self.setSizeGripEnabled(False)
         self.setMinimumSize(1000, 600)
@@ -260,6 +271,7 @@ class WelcomeDialog(QDialog):
         """
         # if self.__showAtStartupCheck.isChecked() != show:
         #     self.__showAtStartupCheck.setChecked(show)
+        pass
 
     def showAtStartup(self):
         # type: () -> bool
@@ -267,6 +279,7 @@ class WelcomeDialog(QDialog):
         Return the 'Show at startup' check box state.
         """
         # return self.__showAtStartupCheck.isChecked()
+        pass
 
     def setFeedbackUrl(self, url):
         # type: (str) -> None
@@ -282,6 +295,27 @@ class WelcomeDialog(QDialog):
         # else:
         #     self.__feedbackLabel.setText("")
         # self.__feedbackLabel.setVisible(bool(url))
+        pass
+    
+    def addColumn(self, actions, background="light-orange"):
+        """Add a column with `actions`.
+        """
+        count = self.__contectLayout.count()
+        self.insertColumn(count, actions, background)
+    
+    def insertColumn(self, index, actions, background="light-orange"):
+        """Insert a column with `actions` at `index`.
+        """
+        widget = QWidget(objectName="icon-column")
+        layout = QHBoxLayout()
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(0)
+        widget.setLayout(layout)
+
+        self.__contectLayout.insertWidget(0, widget, stretch=10, alignment=Qt.AlignTop)
+
+        for i, action in enumerate(actions):
+            self.insertAction(index, i, action, background)
 
     def addRow(self, actions, background="light-orange"):
         """Add a row with `actions`.
@@ -304,18 +338,6 @@ class WelcomeDialog(QDialog):
         for i, action in enumerate(actions):
             self.insertAction(index, i, action, background)
 
-    # custome
-    def addNewProject(self, action, background="light-orange"):
-        """Add a row with `actions` in topbar.
-        """
-        widget = QWidget()
-        layout = QHBoxLayout()
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(0)
-        widget.setLayout(layout)
-
-        self.__contectLayout.insertWidget(0, widget, stretch=10, alignment=Qt.AlignTop)
-
     def insertAction(self, row, index, action, background="light-orange"):
         """Insert `action` in `row` in position `index`.
         """
@@ -331,31 +353,15 @@ class WelcomeDialog(QDialog):
         layout.insertWidget(index, button)
         button.triggered.connect(self.__on_actionTriggered)
 
-    def createButton(self, action, is_sidebar=True, background="light-orange"):
-        # type: (QAction, bool, Union[QColor, str]) -> QToolButton
+    def createButton(self, action, background="light-orange"):
+        # type: (QAction, Union[QColor, str]) -> QToolButton
         """Create a tool button for action.
         """
         button = WelcomeActionButton(self)
         button.setDefaultAction(action)
-        if is_sidebar:
-            button.setStyleSheet(WELCOME_WIDGET_BUTTON_STYLE)
-            button.setMinimumWidth(200)
-        else:
-            button.setStyleSheet("""
-                QToolButton {
-                    background-color: #4B9BFF;
-                    color: white;
-                    padding: 8px 16px;
-                    border-radius: 4px;
-                    font-size: 13px;
-                    font-weight: 200;
-                }
-                QToolButton:hover {
-                    background-color: #3D8BFF;
-                }
-            """)
-            button.setMinimumWidth(100)
-
+        button.setStyleSheet(WELCOME_WIDGET_BUTTON_STYLE)
+        button.setMinimumWidth(200)
+       
         return button
 
     def buttonAt(self, i, j):

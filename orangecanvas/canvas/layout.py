@@ -153,7 +153,7 @@ class AnchorLayout(QGraphicsObject):
 
         self.scheduleDelayedActivate()
 
-    def scheduleDelayedActivate(self):
+    def scheduleDelayedActivate(self): 
         # type: () -> None
         """
         Schedule an layout pass
