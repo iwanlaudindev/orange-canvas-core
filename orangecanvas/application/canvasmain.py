@@ -1993,8 +1993,6 @@ class CanvasMainWindow(QMainWindow):
         else:
             title = self.tr("Welcome")
         dialog = welcomedialog.WelcomeDialog(self, windowTitle=title)
-        dialog.new_project_clicked.connect(self.new_workflow_window)
-        dialog.open_scheme_clicked.connect(self.open_scheme)
         feedback = config.default.APPLICATION_URLS.get("Feedback", "")
         if feedback:
             dialog.setFeedbackUrl(feedback)
@@ -2010,6 +2008,9 @@ class CanvasMainWindow(QMainWindow):
             dlg.fileSelected.connect(self.open_scheme_file)
             dlg.accepted.connect(dialog.accept)
             dlg.exec()
+        
+        dialog.new_project_clicked.connect(new_scheme)
+        dialog.open_scheme_clicked.connect(open_scheme)
 
         def open_recent():
             if self.recent_scheme() == QDialog.Accepted:
