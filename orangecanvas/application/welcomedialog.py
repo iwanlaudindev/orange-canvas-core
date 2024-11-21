@@ -166,6 +166,9 @@ class WelcomeDialog(QDialog):
     """
     triggered = Signal(QAction)
 
+    new_project_clicked = Signal()
+    open_scheme_clicked = Signal()
+
     def __init__(self, *args, **kwargs):
         showAtStartup = kwargs.pop("showAtStartup", True)
         feedbackUrl = kwargs.pop("feedbackUrl", "")
@@ -227,11 +230,13 @@ class WelcomeDialog(QDialog):
         new_project_btn.setText("New Project")
         new_project_btn.setStyleSheet(NEW_PROJECT_BUTTON)
         new_project_btn.setMinimumWidth(100)
+        new_project_btn.clicked.connect(lambda: self.new_project_clicked.emit())
 
         open_btn = QToolButton()
         open_btn.setText("Open")
         open_btn.setStyleSheet(OPEN_BUTTON)
         open_btn.setMinimumWidth(80)
+        open_btn.clicked.connect(lambda : self.open_scheme_clicked.emit())
 
         # Search box
         search_box = QLineEdit()

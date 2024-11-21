@@ -1993,6 +1993,8 @@ class CanvasMainWindow(QMainWindow):
         else:
             title = self.tr("Welcome")
         dialog = welcomedialog.WelcomeDialog(self, windowTitle=title)
+        dialog.new_project_clicked.connect(self.new_workflow_window)
+        dialog.open_scheme_clicked.connect(self.open_scheme)
         feedback = config.default.APPLICATION_URLS.get("Feedback", "")
         if feedback:
             dialog.setFeedbackUrl(feedback)
