@@ -311,14 +311,13 @@ class WidgetToolBox(ToolBox):
         self.__buttonSize = QSize(50, 50)
         self.__filterText = ""
         self.__filteredSavedState = {}
-        self.setSizePolicy(QSizePolicy.Fixed,
-                           QSizePolicy.Expanding)
+        self.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Expanding)
         action = QAction(
             load_styled_svg_icon("Search.svg"), self.tr("Search"), self
         )
         self.__filterEdit = QLineEdit(
             objectName="filter-edit-line",
-            placeholderText=self.tr("Filter..."),
+            placeholderText=self.tr("Search"),
             toolTip=self.tr("Filter/search the list of available widgets."),
             clearButtonEnabled=True,
         )
@@ -326,7 +325,7 @@ class WidgetToolBox(ToolBox):
         self.__filterEdit.addAction(action, QLineEdit.LeadingPosition)
         self.__filterEdit.textChanged.connect(self.__on_filterTextChanged)
         layout = self.layout()
-        layout.setSpacing(1)
+        layout.setSpacing(10)
         layout.insertWidget(0, self.__filterEdit)
 
         open_all = QAction(self.tr("Open all"), self)
@@ -354,8 +353,7 @@ class WidgetToolBox(ToolBox):
         """
         return QSize(self.__iconSize)
 
-    iconSize_ = Property(QSize, fget=iconSize, fset=setIconSize,
-                         designable=True)
+    iconSize_ = Property(QSize, fget=iconSize, fset=setIconSize, designable=True)
 
     def setButtonSize(self, size):  # type: (QSize) -> None
         """

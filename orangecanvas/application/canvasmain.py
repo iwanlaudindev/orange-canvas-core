@@ -25,7 +25,7 @@ from AnyQt.QtWidgets import (
     QDockWidget, QApplication, QShortcut, QFileIconProvider
 )
 from AnyQt.QtGui import (
-    QColor, QDesktopServices, QKeySequence,
+    QColor, QDesktopServices, QKeySequence, QFont,
     QWhatsThisClickedEvent, QShowEvent, QCloseEvent
 )
 from AnyQt.QtCore import (
@@ -220,7 +220,7 @@ class CanvasMainWindow(QMainWindow):
         self.setCentralWidget(w)
 
         # Drop shadow around the scheme document
-        frame = DropShadowFrame(radius=15)
+        frame = DropShadowFrame(radius=0)
         frame.setColor(QColor(0, 0, 0, 100))
         frame.setWidget(self.scheme_widget)
 
@@ -232,22 +232,19 @@ class CanvasMainWindow(QMainWindow):
 
         # QMainWindow's Dock widget
         self.dock_widget = CollapsibleDockWidget(objectName="main-area-dock")
-        self.dock_widget.setFeatures(QDockWidget.DockWidgetMovable |
-                                     QDockWidget.DockWidgetClosable)
+        self.dock_widget.setFeatures(QDockWidget.DockWidgetMovable | QDockWidget.DockWidgetClosable)
 
-        self.dock_widget.setAllowedAreas(Qt.LeftDockWidgetArea |
-                                         Qt.RightDockWidgetArea)
+        self.dock_widget.setAllowedAreas(Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea)
 
         # Main canvas tool dock (with widget toolbox, common actions.
         # This is the widget that is shown when the dock is expanded.
         canvas_tool_dock = CanvasToolDock(objectName="canvas-tool-dock")
-        canvas_tool_dock.setSizePolicy(QSizePolicy.Fixed,
-                                       QSizePolicy.MinimumExpanding)
+        canvas_tool_dock.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.MinimumExpanding)
 
         # Bottom tool bar
         self.canvas_toolbar = canvas_tool_dock.toolbar
         self.canvas_toolbar.setIconSize(QSize(24, 24))
-        self.canvas_toolbar.setMinimumHeight(28)
+        self.canvas_toolbar.setMinimumHeight(50)
         self.canvas_toolbar.layout().setSpacing(1)
 
         # Widgets tool box
@@ -264,7 +261,7 @@ class CanvasMainWindow(QMainWindow):
 
         self.dock_help = canvas_tool_dock.help
         self.dock_help.setMaximumHeight(150)
-        self.dock_help.document().setDefaultStyleSheet("h3, a {color: orange;}")
+        self.dock_help.document().setDefaultStyleSheet("h4, a {color: #0D92F4; text-decoration: none;}")
 
         self.dock_help.setDefaultText(
             "Select a widget to show its description."

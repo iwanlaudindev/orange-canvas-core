@@ -528,8 +528,7 @@ class ToolBox(QFrame):
         button = ToolBoxTabButton(self, objectName="toolbox-tab-button")
         button.setDefaultAction(action)
         button.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
-        button.setSizePolicy(QSizePolicy.Ignored,
-                             QSizePolicy.Fixed)
+        button.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Fixed)
 
         if self.__tabIconSize.isValid():
             button.setIconSize(self.__tabIconSize)

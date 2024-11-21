@@ -234,6 +234,29 @@ class QuickHelpWidget(QuickHelp):
         """
         hint = super().minimumSizeHint()
         return QSize(hint.width(), 0)
+    
+    def setCustomeStyle(self, style_dict=None):
+        """
+        Function to apply styles to the widget using a dictionary of styles.
+        Args:
+            style_dict (dict): A dictionary containing style rules.
+                               Example: {'background-color': '#fff', 'border': '1px solid #ccc'}
+        """
+        if not style_dict:
+            style_dict = {
+                # "background-color": "black",
+                # "border-radius": "10px",
+                "padding": "20px 5px 20px 5px",
+                "font-family": "Arial",
+                "font-size": "13px",
+                "font-weight": "normal",
+            }
+        
+        # Convert the dictionary into a stylesheet string
+        style_sheet = "; ".join([f"{key}: {value}" for key, value in style_dict.items()])
+        
+        # Apply the stylesheet
+        self.setStyleSheet(style_sheet)
 
 
 class CanvasToolDock(QWidget):
@@ -248,7 +271,7 @@ class CanvasToolDock(QWidget):
 
     def __setupUi(self):
         layout = QVBoxLayout()
-        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setContentsMargins(10, 10, 10, 0)
         layout.setSpacing(0)
 
         self.toolbox = WidgetToolBox()
@@ -265,8 +288,7 @@ class CanvasToolDock(QWidget):
         self.toolbar.setMovable(False)
         self.toolbar.setFloatable(False)
 
-        self.toolbar.setSizePolicy(QSizePolicy.Ignored,
-                                   QSizePolicy.Preferred)
+        self.toolbar.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Preferred)
 
         layout.addWidget(self.__splitter, 10)
         layout.addWidget(self.toolbar)
@@ -292,6 +314,7 @@ class CanvasToolDock(QWidget):
     def toggleQuickHelpAction(self):
         # type: () -> QAction
         """Return a checkable QAction for help show/hide."""
+        pass
         return self.__splitterResizer.toggleExpandedAction()
 
     def toogleQuickHelpAction(self):
