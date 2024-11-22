@@ -63,6 +63,7 @@ from .canvastooldock import CanvasToolDock, QuickCategoryToolbar, \
                             CategoryPopupMenu, popup_position_from_source
 from .aboutdialog import AboutDialog
 from .schemeinfo import SchemeInfoDialog
+from .schememagic import SchemeMagicDialog
 from .outputview import OutputView, TextStream
 from .settings import UserSettingsDialog, category_state
 from .utils.addons import normalize_name, is_requirement_available
@@ -293,22 +294,23 @@ class CanvasMainWindow(QMainWindow):
         tool_actions = self.current_document().toolbarActions()
 
         (self.zoom_in_action, self.zoom_out_action, self.zoom_reset_action,
-         self.canvas_align_to_grid_action,
-         self.canvas_text_action, self.canvas_arrow_action,) = tool_actions
+         self.canvas_align_to_grid_action, self.canvas_text_action, self.canvas_arrow_action,) = tool_actions
 
         self.canvas_align_to_grid_action.setIcon(load_styled_svg_icon("Grid.svg", self.canvas_toolbar))
         self.canvas_text_action.setIcon(load_styled_svg_icon("Text Size.svg", self.canvas_toolbar))
         self.canvas_arrow_action.setIcon(load_styled_svg_icon("Arrow.svg", self.canvas_toolbar))
         self.freeze_action.setIcon(load_styled_svg_icon('Pause.svg', self.canvas_toolbar))
         self.show_properties_action.setIcon(load_styled_svg_icon("Document Info.svg", self.canvas_toolbar))
+        self.canvas_magic_action.setIcon(load_styled_svg_icon("Magic.svg", self.canvas_toolbar))
 
         dock_actions = [
             self.show_properties_action,
+            self.canvas_magic_action,
             self.canvas_align_to_grid_action,
             self.canvas_text_action,
             self.canvas_arrow_action,
             self.freeze_action,
-            self.dock_help_action
+            self.dock_help_action,
         ]
 
         # Tool bar in the collapsed dock state (has the same actions as
@@ -538,6 +540,14 @@ class CanvasMainWindow(QMainWindow):
             triggered=self.show_scheme_properties,
             shortcut=QKeySequence("Ctrl+I"),
             icon=load_styled_svg_icon("Document Info.svg")
+        )
+        self.canvas_magic_action = QAction(
+            self.tr("Canvas Magic"), self,
+            objectName="canvas-magic-action",
+            toolTip=self.tr("Show magic action."),
+            triggered=self.show_schema_magic,
+            checkable=True,
+            shortcut=QKeySequence("Ctrl+/"),
         )
 
         self.canvas_settings_action = QAction(
@@ -2091,6 +2101,24 @@ class CanvasMainWindow(QMainWindow):
             settings.setValue(value_key, dialog.showAtNewScheme())
         dialog.finished.connect(onfinished)
         return dialog
+    
+    def schema_magics_dialog(self):
+        # type: () -> SchemeMagicDialog
+        """Return an empty `SchemeInfo` dialog instance.
+        """
+        settings = QSettings()
+        value_key = "schemeinfo/show-at-magic-scheme"
+        dialog = SchemeMagicDialog(
+            self, windowTitle=self.tr("Magic Action"),
+        )
+        dialog.setFixedSize(450, 450)
+        # dialog.setShowAtNewScheme(settings.value(value_key, False, type=bool))
+
+        # def onfinished():
+        #     # type: () -> None
+        #     settings.setValue(value_key, dialog.showAtNewScheme())
+        # dialog.finished.connect(onfinished)
+        return dialog
 
     def show_scheme_properties(self):
         # type: () -> int
@@ -2101,6 +2129,27 @@ class CanvasMainWindow(QMainWindow):
         scheme = current_doc.scheme()
         assert scheme is not None
         dlg = self.scheme_properties_dialog()
+        dlg.setAutoCommit(False)
+        dlg.setScheme(scheme)
+        status = dlg.exec()
+
+        if status == QDialog.Accepted:
+            editor = dlg.editor
+            stack = current_doc.undoStack()
+            stack.beginMacro(self.tr("Change Info"))
+            current_doc.setTitle(editor.title())
+            current_doc.setDescription(editor.description())
+            stack.endMacro()
+        return status
+    
+    def show_schema_magic(self):
+        # type: () -> int
+        """Toggle schema magic.
+        """
+        current_doc = self.current_document()
+        scheme = current_doc.scheme()
+        assert scheme is not None
+        dlg = self.schema_magics_dialog()
         dlg.setAutoCommit(False)
         dlg.setScheme(scheme)
         status = dlg.exec()
