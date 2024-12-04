@@ -17,6 +17,21 @@ from ..gui.utils import StyledWidget_paintEvent, StyledWidget
 if typing.TYPE_CHECKING:
     from ..scheme import Scheme
 
+class AutoResizeEditor(QTextEdit):
+    def __init__(self):
+        super().__init__()
+        self.textChanged.connect(self.autoResize)
+
+    def autoResize(self):
+        self.document().setTextWidth(self.viewport().width())
+        margins = self.contentsMargins()
+        height = int(self.document().size().height() + margins.top() + margins.bottom())
+        if (height < 100):
+            self.setFixedHeight(height)
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        self.autoResize()
 
 class SchemeInfoEdit(QWidget):
     """Scheme info editor widget.
@@ -32,9 +47,8 @@ class SchemeInfoEdit(QWidget):
         layout.setRowWrapPolicy(QFormLayout.WrapAllRows)
         layout.setFieldGrowthPolicy(QFormLayout.ExpandingFieldsGrow)
 
-        self.desc_edit = QTextEdit(self)
+        self.desc_edit = AutoResizeEditor()
         self.desc_edit.setTabChangesFocus(True)
-        self.desc_edit.setFixedHeight(100)
         self.desc_edit.setStyleSheet("""
             QTextEdit {
                 font-weight: normal;
@@ -115,13 +129,6 @@ class SchemeMagicDialog(QDialog):
         self.editor.layout().setSpacing(15)
         self.editor.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding)
 
-        heading = self.tr("Message ChatGPT")
-        heading = "<h3>{0}</h3>".format(heading)
-        self.heading = QLabel(heading, self, objectName="heading")
-
-        # Insert heading
-        self.editor.layout().insertRow(0, self.heading)
-
         self.buttonbox = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel, Qt.Horizontal, self)
 
         # Insert button box
@@ -153,7 +160,17 @@ class SchemeMagicDialog(QDialog):
         self.buttonbox.accepted.connect(self.accept)
         self.buttonbox.rejected.connect(self.reject)
 
-        layout.addWidget(self.editor, stretch=10)
+        contentWidget = QWidget()
+        contentLayout = QVBoxLayout()
+        contentWidget.setLayout(contentLayout)
+        heading = self.tr("Message ChatGPT")
+        heading = "<h3>{0}</h3>".format(heading)
+        heading = QLabel(heading, self, objectName="heading")
+        contentLayout.addWidget(heading, alignment=Qt.AlignTop)
+        contentLayout.addWidget(QLabel("Chat list"), stretch=1, alignment=Qt.AlignTop)
+
+        layout.addWidget(contentWidget, stretch=1)
+        layout.addWidget(self.editor)
         layout.addWidget(widget)
 
         self.setLayout(layout)
